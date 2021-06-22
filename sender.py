@@ -29,12 +29,12 @@ def encrypt(message):
     f = Fernet(key)
     # get ip and port of destination
     ip = bytes(map(int, message[5].split('.')))
-    ip = str(ip)[2:len(str(ip))-1]
+    # ip = str(ip)[2:len(str(ip))-1]
     port = (int(message[6])).to_bytes(2, 'big')
-    port = str(port)[2:len(str(port))-1]
+    # port = str(port)[2:len(str(port))-1]
     # encrypt the message
-    token = f.encrypt(message[0].encode()).decode()
-    send_message(f.encrypt(message[0].encode()), "127.0.0.1", int("5000"))
+    token = f.encrypt(message[0].encode())
+    # send_message(f.encrypt(message[0].encode()), "127.0.0.1", int("5000"))
     msg = ip + port + token
     # print(msg)
     # encrypt the message for the mix-servers
@@ -51,16 +51,15 @@ def encrypt(message):
             previous = int(path[i-1])
             data = ips[previous - 1].split(" ")
             ip = bytes(map(int, data[0].split('.')))
-            ip = str(ip)[2:len(str(ip)) - 1]
             port = (int(data[1])).to_bytes(2, 'big')
-            port = str(port)[2:len(str(port)) - 1]
             msg = ip + port + msg
         # encrypt message
-        msg = pemKey.encrypt(msg.encode(), padding.OAEP(
+        msg = pemKey.encrypt(msg, padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None))
-        msg = base64.b64encode(msg).decode()
+        # msg = base64.b64encode(msg).decode()
+        # msg = msg.decode()
         # msg = msg[2:len(msg)-1]
         i += 1
         print(msg)
@@ -68,7 +67,7 @@ def encrypt(message):
     path.reverse()
     num = path[0]
     data = ips[int(num) - 1].split(" ")
-    send_message(msg.encode(), data[0], int(data[1]))
+    send_message(msg, data[0], int(data[1]))
 
 
 def main():
