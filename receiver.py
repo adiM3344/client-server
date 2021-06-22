@@ -20,10 +20,10 @@ def main():
     port = int(sys.argv[3])
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('', port))
-    server.listen(5)
+    server.listen(10)
     while True:
         client_socket, client_address = server.accept()
-        print("connected")
+        # print("connected")
         data = client_socket.recv(4096)
         data = decrypt(data, sys.argv[1].encode(), sys.argv[2].encode())
         now = datetime.now()
