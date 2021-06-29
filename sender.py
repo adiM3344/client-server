@@ -1,44 +1,43 @@
 # Ortal Lankri, 209281674, Adi Meirman, 208177204
-import random
+
 import sys
 import base64
-import os
 import socket
 import threading
-import time
-
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 m_list = []
 global round_num
 round_num = 0
+global sent_num
+sent_num = 0
 
 
 def manage():
-    time.sleep(5)
+    if len(m_list) == 0 or len(m_list) > sent_num:
+        threading.Timer(60, manage).start()
     copy = m_list.copy()
     send_messages(copy)
     global round_num
     round_num += 1
-    manage()
 
 
 def send_messages(messages_list):
     for m in messages_list:
         if m[3] == round_num:
             send_message(m[0], m[1], m[2])
+            global sent_num
+            sent_num += 1
 
 
 def send_message(message, ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
-    # print("connected")
     s.send(message)
-    print("sent")
     s.close()
 
 
@@ -55,7 +54,6 @@ def encrypt(message):
     # encrypt the message
     token = f.encrypt(message[0].encode())
     msg = ip + port + token
-    # print(msg)
     # encrypt the message for the mix-servers
     ips = open("ips.txt").read().split("\n")
     path = message[1].split(",")
@@ -78,8 +76,7 @@ def encrypt(message):
                 algorithm=hashes.SHA256(),
                 label=None))
         i += 1
-        # print(msg)
-    # send message
+    # add message to list
     path.reverse()
     num = path[0]
     data = ips[int(num) - 1].split(" ")
@@ -87,13 +84,11 @@ def encrypt(message):
 
 
 def main():
-    t = threading.Thread(target=manage)
-    t.start()
+    threading.Timer(60, manage).start()
     x = str(sys.argv[1])
     fileName = "messages" + x + ".txt"
     file = open(fileName).read()
     messages = file.split("\n")
-    # encrypt(messages[0].split(" "))
     for message in messages:
         if message != "":
             encrypt(message.split(" "))
@@ -101,4 +96,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

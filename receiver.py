@@ -1,9 +1,9 @@
 # Ortal Lankri, 209281674, Adi Meirman, 208177204
+
 import socket
 import sys
 from datetime import datetime
 import base64
-import os
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -17,15 +17,16 @@ def decrypt(message, password, salt):
 
 
 def main():
+    password = sys.argv[1].encode()
+    salt = sys.argv[2].encode()
     port = int(sys.argv[3])
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('', port))
     server.listen(10)
     while True:
         client_socket, client_address = server.accept()
-        # print("connected")
         data = client_socket.recv(4096)
-        data = decrypt(data, sys.argv[1].encode(), sys.argv[2].encode())
+        data = decrypt(data, password, salt)
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print(data + " " + current_time)

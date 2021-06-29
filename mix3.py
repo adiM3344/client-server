@@ -1,14 +1,9 @@
 # Ortal Lankri, 209281674, Adi Meirman, 208177204
 
-import base64
-import binascii
 import random
 import socket
 import sys
 import threading
-import time
-from concurrent.futures import thread
-from datetime import datetime
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
@@ -17,11 +12,10 @@ m_list = []
 
 
 def manage():
-    time.sleep(10)
+    threading.Timer(10, manage).start()
     copy = m_list.copy()
     m_list.clear()
     send_messages(copy)
-    manage()
 
 
 def send_messages(messages_list):
@@ -33,7 +27,6 @@ def send_messages(messages_list):
 def send_message(message, ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
-    # print("connected")
     s.send(message)
     print("sent")
     s.close()
@@ -60,8 +53,7 @@ def decrypt(message, num):
 
 
 def main():
-    t = threading.Thread(target=manage)
-    t.start()
+    threading.Timer(10, manage).start()
     num = sys.argv[1]
     ips = open("ips.txt").read().split("\n")
     data = ips[int(num) - 1].split(" ")
@@ -71,7 +63,6 @@ def main():
     server.listen(5)
     while True:
         client_socket, client_address = server.accept()
-        # print("connected")
         data = client_socket.recv(4096)
         decrypt(data, num)
         client_socket.close()
